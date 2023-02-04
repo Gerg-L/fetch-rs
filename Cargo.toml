@@ -1,0 +1,16 @@
+[package]
+name = "fetch-rs"
+version = "1.0.0"
+edition = "2021"
+
+
+[dependencies]
+colored = "2.0.0"
+nix = {version = "0.26.2", features = ["fs"]}
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1 
+panic = "abort"
