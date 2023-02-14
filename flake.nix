@@ -10,21 +10,24 @@
     nixpkgs,
     flake-utils,
   }:
-    flake-utils.lib.eachDefaultSystem (
+    {
+      overlay = self.overlays.default;
+      overlays = {
+        fetch-rs = _: final: {
+          fetch-rs = self.packages.${final.system}.fetch-rs;
+        };
+        default = self.overlays.fetch-rs;
+      };
+    }
+    // flake-utils.lib.eachDefaultSystem (
       system: let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = import nixpkgs {inherit system;};
       in rec
       {
         formatter = pkgs.alejandra;
-        packages = {
+        packages = rec {
           fetch-rs = pkgs.callPackage ./default.nix {};
-          default = self.packages.${system}.fetch-rs;
-        };
-        overlays = {
-          fetch-rs = _: prev: {
-            fetch-rs = self.packages.${system}.fetch-rs;
-          };
-          default = self.overlays.${system}.fetch-rs;
+          default = fetch-rs;
         };
         devShells.default = pkgs.mkShell rec {
           buildInputs = with pkgs; [rustfmt cargo rustc rust-analyzer];
