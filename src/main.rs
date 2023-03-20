@@ -286,7 +286,6 @@ fn main() {
     let uptime_formatted = format_dhms(get_uptime()).blue();
     let shell = strip_path(env::var("SHELL").expect("$SHELL not set")).magenta();
     let editor = strip_path(env::var("EDITOR").expect("$EDITOR not set")).bright_black();
-    let terminal = env::var("TERMINAL").expect("$TERMINAL not set").blue();
 
     let memory = mem_info().expect("Could not get and parse memory info from /proc/meminfo");
     let mem_used = iec(memory.used);
@@ -318,14 +317,14 @@ fn main() {
         "".bright_blue(),
     ];
     let nixos = format!(
-"   _  ___      ____  ____
+        "   _  ___      ____  ____
   / |/ (_)_ __/ __ \\/ __/
  /    / /\\ \\ / /_/ /\\ \\
 /_/|_/_//_\\_\\\\____/___/"
     )
     .cyan();
     let output = format!(
-"{nixos}
+        "{nixos}
   ╭───────────╮
   │ {}  user   │ {user}
   │ {}  hname  │ {hostname}
@@ -334,13 +333,12 @@ fn main() {
   │ {}  uptime │ {uptime_formatted}
   │ {}  shell  │ {shell}
   │ {}  editor │ {editor}
-  │ {}  term   │ {terminal}
   │ {}  memory │ {mem_total}/{mem_used}
   ├───────────┤
   │ {}  colors │ {dots}
   ╰───────────╯
 ",
-        s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9]
+        s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8]
     );
     print!("{}", output);
     let filesys = get_file_system_info();
