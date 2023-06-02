@@ -14,14 +14,19 @@
         ["x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin"]);
   in
     {
-      overlay = _: final: self.packages.${final.system};
+      overlay = final: _: {
+        inherit (self.packages.${final.system}) fetch-rs;
+      };
     }
     // withSystem (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         formatter = pkgs.alejandra;
-        packages.fetch-rs = pkgs.callPackage ./. {};
+        packages = {
+          fetch-rs = pkgs.callPackage ./. {};
+          default = self.packages.${system}.fetch-rs;
+        };
         devShells.default = pkgs.mkShell {
           packages = [
             pkgs.rustfmt
