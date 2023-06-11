@@ -1,38 +1,38 @@
 {
   description = "another fetch tool written in rust";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
   outputs = {
     nixpkgs,
     self,
     ...
   }: let
-    lib = nixpkgs.lib;
+    inherit (nixpkgs) lib;
     withSystem = f:
-      lib.foldAttrs lib.mergeAttrs {}
-      (map (s: lib.mapAttrs (_: v: {${s} = v;}) (f s))
-        ["x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin"]);
+      lib.fold lib.recursiveUpdate {}
+      (map (s: f s) ["x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin"]);
   in
-    {
-      overlay = final: _: {
-        inherit (self.packages.${final.system}) fetch-rs;
-      };
-    }
-    // withSystem (
+    withSystem (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
       in {
-        formatter = pkgs.alejandra;
-        packages = {
+        overlay = final: _: lib.filterAttrs (n: _: n == "default") self.packages.${final.system};
+
+        formatter.${system} = pkgs.alejandra;
+
+        packages.${system} = {
           fetch-rs = pkgs.callPackage ./. {};
           default = self.packages.${system}.fetch-rs;
         };
-        devShells.default = pkgs.mkShell {
+
+        devShells.${system}.default = pkgs.mkShell {
           packages = [
             pkgs.rustfmt
-            pkgs.cargo
-            pkgs.rustc
             pkgs.rust-analyzer
+          ];
+          inputsFrom = [
+            self.packages.${system}.default
           ];
         };
       }
