@@ -22,7 +22,14 @@
         formatter.${system} = pkgs.alejandra;
 
         packages.${system} = {
-          fetch-rs = pkgs.callPackage ./. {};
+          fetch-rs = pkgs.callPackage (
+            {rustPlatform}:
+              rustPlatform.buildRustPackage {
+                name = "fetch-rs";
+                src = self;
+                cargoLock.lockFile = ./Cargo.lock;
+              }
+          ) {};
           default = self.packages.${system}.fetch-rs;
         };
 
