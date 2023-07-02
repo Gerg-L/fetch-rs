@@ -17,7 +17,8 @@
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
       in {
-        overlay = final: _: lib.filterAttrs (n: _: n == "default") self.packages.${final.system};
+        overlays.default = final: _: removeAttrs self.packages.${final.system} ["default"];
+        overlay = self.overlays.default;
 
         formatter.${system} = pkgs.alejandra;
 
