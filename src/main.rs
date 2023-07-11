@@ -308,13 +308,12 @@ fn main() {
         "".white(),
         "".red(),
         "".yellow(),
-        "".green(),
+        "󰌢".green(),
         "".cyan(),
         "".magenta(),
-        "".bright_black(),
-        "".blue(),
-        "".white(),
-        "".bright_blue(),
+        "".bright_black(),
+        "󰍛".white(),
+        "󰏘".white(),
     ];
     let nixos = format!(
         "   _  ___      ____  ____
