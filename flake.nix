@@ -29,6 +29,7 @@
                 name = "fetch-rs";
                 src = self;
                 cargoLock.lockFile = ./Cargo.lock;
+                meta.mainProgram = "fetch-rs";
               }
           ) {};
           default = self.packages.${system}.fetch-rs;
