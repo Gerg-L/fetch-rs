@@ -1,7 +1,7 @@
-{ rustPlatform }:
+{ self, rustPlatform }:
 rustPlatform.buildRustPackage {
   name = "fetch-rs";
-  src = ./.;
+  src = self;
   cargoLock.lockFile = ./Cargo.lock;
   meta.mainProgram = "fetch-rs";
 }
