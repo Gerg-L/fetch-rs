@@ -15,7 +15,7 @@
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
         in
         {
-          fetch-rs = pkgs.callPackage ./package.nix { inherit self; };
+          fetch-rs = pkgs.callPackage ./package.nix { };
           default = self.packages.x86_64-linux.fetch-rs;
         };
     };

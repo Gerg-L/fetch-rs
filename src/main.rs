@@ -1,34 +1,27 @@
 use colored::*;
 use nix::sys::statvfs::statvfs;
-use std::collections::HashMap;
-use std::convert::{TryFrom, TryInto};
-use std::env;
-use std::fmt;
-use std::fmt::Debug;
-use std::fs::File;
-use std::io;
-use std::io::BufRead;
-use std::io::BufReader;
-use std::io::Read;
-use std::ops::BitAnd;
-use std::path::Path;
-use std::result::Result;
-use std::str::FromStr;
+use std::{
+    collections::HashMap,
+    convert::{TryFrom, TryInto},
+    env,
+    fmt::{self, Debug},
+    fs::File,
+    io::{self, BufRead, BufReader, Read},
+    ops::BitAnd,
+    path::Path,
+    result::Result,
+    str::FromStr,
+};
 fn pretty_name() -> Result<String, Error> {
     let mut s = String::new();
     File::open("/etc/os-release")?.read_to_string(&mut s)?;
 
     let mut pretty_name = String::new();
     for l in s.split('\n') {
-        match parse_lines(l.trim().to_string()) {
-            Some((key, value)) => match (key.as_ref(), value) {
-                ("PRETTY_NAME", val) => {
-                    pretty_name = val.clone();
-                    Some(val);
-                }
-                _ => {}
-            },
-            None => {}
+        if let Some((key, value)) = parse_lines(l.trim().to_string()) {
+            if let ("PRETTY_NAME", val) = (key.as_ref(), value) {
+                pretty_name.clone_from(&val);
+            }
         }
     }
 
@@ -57,7 +50,7 @@ fn parse_lines(l: String) -> Option<(String, String)> {
         trim_value.remove(len - 1);
     }
 
-    return Some((String::from(words[0]), trim_value));
+    Some((String::from(words[0]), trim_value))
 }
 
 pub fn get_uptime() -> isize {
@@ -203,7 +196,7 @@ fn mem_info() -> Result<MemInfo, Error> {
             let label = split_line.next();
             let value = split_line.next();
             if value.is_some() && label.is_some() {
-                let label = label.unwrap().split(':').nth(0).ok_or(Error::Unknown)?;
+                let label = label.unwrap().split(':').next().ok_or(Error::Unknown)?;
                 let value = value.unwrap().parse::<u64>().ok().ok_or(Error::Unknown)?;
                 meminfo_hashmap.insert(label, value);
             }
@@ -242,7 +235,7 @@ fn get_file_system_info() -> Vec<Vec<String>> {
         match line {
             Ok(line) => {
                 let fields: Vec<&str> = line.split_whitespace().collect();
-                if !fields[FS_SPEC].contains("/") {
+                if !fields[FS_SPEC].contains('/') {
                     continue;
                 }
                 let statvfs = match statvfs(fields[FS_FILE]) {
@@ -269,7 +262,7 @@ fn get_file_system_info() -> Vec<Vec<String>> {
             Err(err) => println!("Error: {}", err),
         }
     }
-    return r_vec;
+    r_vec
 }
 
 fn main() {
@@ -315,13 +308,11 @@ fn main() {
         "󰍛".white(),
         "󰏘".white(),
     ];
-    let nixos = format!(
-        "   _  ___      ____  ____
+    let nixos = ("   _  ___      ____  ____
   / |/ (_)_ __/ __ \\/ __/
  /    / /\\ \\ / /_/ /\\ \\
-/_/|_/_//_\\_\\\\____/___/"
-    )
-    .cyan();
+/_/|_/_//_\\_\\\\____/___/")
+        .cyan();
     let output = format!(
         "{nixos}
   ╭───────────╮
@@ -341,7 +332,7 @@ fn main() {
     );
     print!("{}", output);
     let filesys = get_file_system_info();
-    if filesys.len() == 0 {
+    if filesys.is_empty() {
         return;
     }
     let mut drives = Vec::new();
@@ -350,7 +341,7 @@ fn main() {
         for _ in 0..v.len() {
             lines.push("─".to_string());
         }
-        return lines;
+        lines
     }
     for vec in filesys.as_slice() {
         drives.push("  ╭".to_string());
