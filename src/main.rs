@@ -12,6 +12,7 @@ use std::{
     result::Result,
     str::FromStr,
 };
+
 fn pretty_name() -> Result<String, Error> {
     let mut s = String::new();
     File::open("/etc/os-release")?.read_to_string(&mut s)?;
@@ -267,9 +268,8 @@ fn get_file_system_info() -> Vec<Vec<String>> {
 
 fn main() {
     let user = env::var("USER").expect("$USER not set").white();
-    let hostname = cat_file("/etc/hostname")
-        .expect("Could not read /etc/hostname")
-        .red();
+    let hostname = nix::unistd::gethostname().expect("Failed to get hostname");
+    let hostname = hostname.to_string_lossy().red();
     let pretty_name = pretty_name()
         .expect("Could Not access /etc/os-release")
         .yellow();
